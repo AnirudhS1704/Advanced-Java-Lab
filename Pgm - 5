@@ -1,113 +1,134 @@
-// Pgm - 5
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-
-class Customer {
-    String customerId;
-    String mobileNumber;
-
-    Customer(String customerId, String mobileNumber) {
-        this.customerId = customerId;
-        this.mobileNumber = mobileNumber;
-    }
-}
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 class Item {
-    String itemId;
-    String itemName;
-    double itemPrice;
+    private String id;
+    private String name;
+    private double price;
 
-    Item(String itemId, String itemName, double itemPrice) {
-        this.itemId = itemId;
-        this.itemName = itemName;
-        this.itemPrice = itemPrice;
+    public Item(String id, String name, double price) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getPrice() {
+        return price;
     }
 }
 
-public class CustomerDetails extends JFrame implements ActionListener {
-    Map<String, Customer> customerDetails = new HashMap<>();
-    Map<String, Item> itemDetails = new HashMap<>();
-    JTextField mobileNumberField, itemIdField, quantityField, discountField;
+public class CustomerDetailsApp  extends JFrame {
+	
+    private HashMap<String, String> customers;
+    private ArrayList<Item> items;
 
-    public CustomerDetails() {
-    	Item i1 = new Item("10", "pencil", 10);
-    	Item i2 = new Item("10", "pen", 10);
-    	Item i3 = new Item("10", "eraser", 10);
-    	
-    	itemDetails.put(i1.itemId, i1);
-    	itemDetails.put(i2.itemId, i2);
-    	itemDetails.put(i3.itemId, i3);
-    	
-        setTitle("Customer Details");
-        setLayout(new GridLayout(5, 2, 10, 10));
+    private JTextField mobileField, itemIdField, quantityField, discountField;
+
+    public CustomerDetailsApp () {
+        customers = new HashMap<>();
+        items = new ArrayList<>();
+        // Dummy data for items
+        items.add(new Item("101", "Item A", 10));
+        items.add(new Item("102", "Item B", 15));
+        items.add(new Item("103", "Item C", 20));
 
         JLabel mobileLabel = new JLabel("Enter Mobile Number:");
-        mobileNumberField = new JTextField();
-
-        JLabel itemLabel = new JLabel("Enter Item ID:");
-        itemIdField = new JTextField();
-
-        JLabel quantityLabel = new JLabel("Enter Quantity:");
-        quantityField = new JTextField();
-
-        JLabel discountLabel = new JLabel("Enter Discount:");
-        discountField = new JTextField();
+        mobileField = new JTextField(20);
 
         JButton checkButton = new JButton("Check Customer");
-        checkButton.addActionListener(this);
+        checkButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                checkCustomer();
+            }
+        });
 
-        JButton purchaseButton = new JButton("Purchase Item");
-        purchaseButton.addActionListener(this);
+        JLabel itemIdLabel = new JLabel("Enter Item ID:");
+        itemIdField = new JTextField(10);
 
-        add(mobileLabel);
-        add(mobileNumberField);
-        add(itemLabel);
-        add(itemIdField);
-        add(quantityLabel);
-        add(quantityField);
-        add(discountLabel);
-        add(discountField);
-        add(checkButton);
-        add(purchaseButton);
+        JLabel quantityLabel = new JLabel("Enter Quantity:");
+        quantityField = new JTextField(5);
 
-        setSize(400, 250);
-        setVisible(true);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JLabel discountLabel = new JLabel("Enter Discount:");
+        discountField = new JTextField(5);
+
+        JButton calculateButton = new JButton("Calculate Total Cost");
+        calculateButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                calculateTotalCost();
+            }
+        });
+
+        JPanel panel = new JPanel(new GridLayout(5, 2));
+        panel.add(mobileLabel);
+        panel.add(mobileField);
+        panel.add(checkButton);
+        panel.add(itemIdLabel);
+        panel.add(itemIdField);
+        panel.add(quantityLabel);
+        panel.add(quantityField);
+        panel.add(discountLabel);
+        panel.add(discountField);
+        panel.add(calculateButton);
+
+        this.add(panel);
+        this.setTitle("Customer Purchase");
+        this.setSize(400, 300);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setVisible(true);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("Check Customer")) {
-            String mobileNumber = mobileNumberField.getText();
-            if (customerDetails.containsKey(mobileNumber)) {
-                Customer customer = customerDetails.get(mobileNumber);
-                JOptionPane.showMessageDialog(this, "Customer ID: " + customer.customerId);
-            } else {
-                String customerId = "C" + (customerDetails.size() + 1);
-                Customer newCustomer = new Customer(customerId, mobileNumber);
-                customerDetails.put(mobileNumber, newCustomer);
-                JOptionPane.showMessageDialog(this, "New customer added. Customer ID: " + customerId);
-            }
-        } else if (e.getActionCommand().equals("Purchase Item")) {
-            String itemId = itemIdField.getText();
-            int quantity = Integer.parseInt(quantityField.getText());
-            double discount = Double.parseDouble(discountField.getText());
-
-            if (itemDetails.containsKey(itemId)) {
-                Item item = itemDetails.get(itemId);
-                double totalCost = item.itemPrice * quantity;
-                totalCost -= (totalCost * (discount / 100)); // Applying discount
-                JOptionPane.showMessageDialog(this, "Item Name: " + item.itemName + "\nTotal Cost: $" + totalCost);
-            } else {
-                JOptionPane.showMessageDialog(this, "Item ID not found!");
-            }
+    private void checkCustomer() {
+        String mobile = mobileField.getText();
+        if (customers.containsKey(mobile)) {
+            String customerId = customers.get(mobile);
+            JOptionPane.showMessageDialog(this, "Customer ID: " + customerId + " exists!");
+        } else {
+            String customerId = String.valueOf(customers.size() + 1); // Generate new customer ID
+            customers.put(mobile, customerId);
+            JOptionPane.showMessageDialog(this, "New customer added! Customer ID: " + customerId);
         }
     }
 
+    private void calculateTotalCost() {
+        String itemId = itemIdField.getText();
+        int quantity = Integer.parseInt(quantityField.getText());
+        double discount = Double.parseDouble(discountField.getText());
+
+        Item item = getItemById(itemId);
+        if (item != null) {
+            double totalCost = item.getPrice() * quantity;
+            totalCost -= (totalCost * discount / 100);
+
+            JOptionPane.showMessageDialog(this, "Item Name: " + item.getName() + "\nTotal Cost: $" + totalCost);
+        } else {
+            JOptionPane.showMessageDialog(this, "Item not found!");
+        }
+    }
+
+    private Item getItemById(String itemId) {
+        for (Item item : items) {
+            if (item.getId().equals(itemId)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
     public static void main(String[] args) {
-        new CustomerDetails();
+        new CustomerDetailsApp ();
     }
 }
+
+
