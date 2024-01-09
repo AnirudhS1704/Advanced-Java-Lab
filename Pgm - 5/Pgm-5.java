@@ -127,8 +127,13 @@ public class CustomerDetailsApp  extends JFrame {
     }
 
     public static void main(String[] args) {
-        new CustomerDetailsApp ();
-    }
+        SwingUtilities.invokeLater(
+		new Runnable(){
+			public void run(){
+				new CustomerDetailsApp();
+    	}
+	});
+}
 }
 
 
