@@ -126,10 +126,14 @@ public class Pgm extends JFrame implements ActionListener{
 				Statement s = c.createStatement();
 				ResultSet r1 = s.executeQuery("select * from patient where treatmentType = '" + reqT + "';");
 				
+				JTextArea ta = new JTextArea();
 				while(r1.next()) {
-					System.out.println(r1.getString("name"));
+					ta.append("Name: " + r1.getString("name") + "\n");
 					
 				}
+				JScrollPane sp = new JScrollPane(ta);
+				JOptionPane.showMessageDialog(this, sp, "Patient Name", JOptionPane.PLAIN_MESSAGE);
+					
 			}
 			catch(SQLException e1){
 				e1.getStackTrace();
